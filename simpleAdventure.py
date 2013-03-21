@@ -1,4 +1,5 @@
 # simpleAdventure v. 0.1b
+# officially lives here -- https://github.com/theprint/simpleAdventure
 # simpleAdventure is really just an exercise in Python, written in 2 days after studying the language for about 2 weeks. The game is a potentially endless text based adventure that allows a character to level up and includes an element of exploration.
 # If I had had more time, I would have included a storyline and an ongoing quest to collect items (there is already an inventory included with the player object, I just didn't get around to using it.
 # Feel free to add to this code, or modify it in any way you see fit. Thanks, Rasmus - twitter.com/theprint / rasmusrasmussen.com
