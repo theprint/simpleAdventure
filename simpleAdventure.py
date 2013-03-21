@@ -24,7 +24,7 @@ player = {
 
 # Initialize gamemap and tile types.
 gameMap = {}
-tileType = ["Town","Plains","Hills","Mountains","Forest","Swamp","Badlands","Dungeon"]
+tileType = ["Town","Plains","Hills","Mountains","Forest","Swamp","Badlands","Dungeon","River","Tundra"]
 
 # Generates a tile on the game map.
 def makeTile(id,x,y):
@@ -150,23 +150,23 @@ def getAction():
 	elif choice == "x":
 		if gameMap[player["locationID"]]["explored"] == False:
 			player["exploredTiles"] += 1
-			sumNum = random.randrange(1,3)
+			sumNum = random.randrange(1,4)
 			if sumNum == 1:
 				print "\nYou find gold!"
-				gold = random.randrange(10,60)
+				gold = random.randrange(6,66)
 				print str(gold) + " added to your holdings..."
 				player["gold"] += gold
-				awardXP(int(math.floor(gold/12)))
+				if gold > 12:
+					awardXP(int(math.floor(gold/12)))
 			elif sumNum == 2:
 				print "Oh no! Monsters! A fight ensues..."
-				damage = random.randrange(1,4)
+				damage = random.randrange(1,5)
 				print "You take " + str(damage) + " points of damage."
 				player["health"] -= damage
 				if player["health"] > 0:
 					awardXP(damage*5)
 			else:
 				print "You look around, but find nothing of interest..."
-				awardXP(1)
 			
 			gameMap[player["locationID"]]["explored"] = True
 		else:
