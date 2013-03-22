@@ -126,7 +126,7 @@ def healPC():
 
 # Pick a monster type!
 def monsterType():
-	monsterList = ["giant spider","goblin","ghost","zombie","ogre","kobold","orc","giant rat","giant beetle","minotaur","dragon","hill giant","wolf"]
+	monsterList = ["giant spider","goblin","ghost","zombie","ogre","kobold","orc","giant rat","giant beetle","minotaur","dragon","hill giant","wolf","bandit","bear","sorceror"]
 	monster = random.choice(monsterList)
 	return monster
 
@@ -148,7 +148,7 @@ def combat(level):
 	theMonster = monsterType() #returns a monster type.
 	
 	# adjust level for specific monster types.
-	if theMonster == "ogre" or theMonster == "minotaur" or theMonster == "hill giant":
+	if theMonster == "ogre" or theMonster == "minotaur" or theMonster == "hill giant" or theMonster == "sorceror":
 		level += player["level"]
 	elif theMonster == "dragon":
 		level += int(player["level"]*1.8)
@@ -238,7 +238,8 @@ def getAction():
 	elif choice == "x":
 		if gameMap[player["locationID"]]["explored"] == False:
 			player["exploredTiles"] += 1
-			sumNum = random.randrange(1,4)
+			sumNum = random.randrange(1,10)
+			#random treasure!
 			if sumNum == 1:
 				print "\nYou find gold!"
 				gold = random.randrange(5,26)
@@ -246,7 +247,8 @@ def getAction():
 				player["gold"] += gold
 				if gold > 12:
 					awardXP(int(math.floor(gold/12)))
-			elif sumNum == 2:
+			# here be monsters!
+			elif sumNum >= 2 and sumNum <= 6:
 				print "Oh no! Monsters! A fight ensues..."
 				time.sleep(1)
 				theLevel = player["level"]
@@ -257,9 +259,22 @@ def getAction():
 					theLevel += 1
 				# start the fight!
 				combat(theLevel)
+			# Here be other encounters
 			else:
-				print "You look around, but find nothing of interest..."
-				awardXP(player["level"])
+				if gameMap[player["locationID"]]["type"] == "Town" and player["gold"] > (player["level"] * 15):
+					print "You find a shopkeeper willing to sell you a healing potion!"
+					price = player["level"]*15
+					buy = raw_input("Do you wish to buy it for %s gold?" % (price)).lower()
+					if buy == "y":
+						player["gold"] -= price
+						player["inventory"].append("healing potion")
+						print "A healing potion has been added to your inventory."
+					elif buy == "n":
+						print "The shopkeeper shrugs and puts away his potion."
+					else:
+						print "The merchant shakes his head. 'I don't understand.'"
+				else:
+					print "You look around, but find nothing of interest..."
 			
 			gameMap[player["locationID"]]["explored"] = True
 		else:
