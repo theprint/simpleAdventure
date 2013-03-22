@@ -13,7 +13,7 @@ player = {
 	"health" : 10,
 	"maxHealth" : 10,
 	"gold" : 100,
-	"inventory" : ["shoes", "blanket"],
+	"inventory" : ["shoes", "blanket","healing potion"],
 	"level" : 1,
 	"xp" : 0,
 	"xpForNextLevel" : 100,
@@ -118,13 +118,21 @@ def awardXP(amount):
 		player["health"] = player["maxHealth"]
 		player["xpForNextLevel"] += int(math.floor(player["xpForNextLevel"]*1.55))
 		print "LEVEL UP -- %s is now level %s!" % (player["name"], player["level"])
-		
+
+# Heals the player to max hit points.		
 def healPC():
 	print "You have healed %s hit points." % (player["maxHealth"]-player["health"])
 	player["health"] = player["maxHealth"]
 
-def monsterAttack(monsterDamage):
-		print "The monster hits back at you..."
+# Pick a monster type!
+def monsterType():
+	monsterList = ["giant spider","goblin","ghost","zombie","ogre","kobold","orc","giant rat","giant beetle","minotaur","dragon","hill giant","wolf"]
+	monster = random.choice(monsterList)
+	return monster
+
+# a monster tries hitting the player
+def monsterAttack(monsterDamage, monsterType):
+		print "The %s hits back at you..." % (monsterType)
 		time.sleep(0.5)
 		monsterToHit = random.randint(1,10)
 		if monsterToHit >= 6:
@@ -133,25 +141,37 @@ def monsterAttack(monsterDamage):
 		else:
 			print "The blow misses you."
 		time.sleep(0.5)
-	
+
+# Combat control loop.
 def combat(level):
 	fighting = True
-	monsterHP = random.randint(3,6) + level
-	monsterDamage = random.randint(1,3) + level
+	theMonster = monsterType() #returns a monster type.
+	
+	# adjust level for specific monster types.
+	if theMonster == "ogre" or theMonster == "minotaur" or theMonster == "hill giant":
+		level += player["level"]
+	elif theMonster == "dragon":
+		level += int(player["level"]*1.8)
+		
+	# Initialize monster stats.
+	monsterHP = random.randint(3,level*3) + level
+	monsterDamage = random.randint(level,int(level*2.75))
 	theXPReward = int((monsterHP + monsterDamage) * (level*1.5))
 	
-	if monsterHP > 5:
+	if monsterHP > (player["health"]-2):
 		description = "a tough looking"
-	elif monsterDamage >= 3:
+	elif monsterDamage > (player["health"]/2):
 		description = "a strong looking"
-	elif monsterHP <= 3:
+	elif monsterHP <= (player["health"]/2):
 		description = "a weak looking"
 	else:
 		description = "an angry looking"
-	print "\nBefore you stands " + description + " monster."
+	print "\nBefore you stands " + description + " " + theMonster + "."
 	while fighting == True and player["health"] > 0:
 		print "a = attack"
 		print "f = flee"
+		if "healing potion" in player["inventory"]:
+			print "h = use healing potion"
 		playerAction = raw_input("Pick an action: ").lower()
 		if playerAction == "a":
 			#attack monster
@@ -160,20 +180,20 @@ def combat(level):
 			if toHit >= monsterHP:
 				theDamage = random.randint(2,5)
 				monsterHP -= theDamage
-				print "\nYou hit the monster for %s hit points." % (theDamage)
+				print "\nYou hit the %s for %s hit points." % (theMonster, theDamage)
 				time.sleep(0.5)
 				if monsterHP <= 0:
 					print "Your opponent falls lifeless to the ground."
 					awardXP(theXPReward)
 					fighting = False
 				else:
-					monsterAttack(monsterDamage)
+					monsterAttack(monsterDamage,theMonster)
 			else:
 				print "Your blow misses its target."
-				monsterAttack(monsterDamage)			
+				monsterAttack(monsterDamage,theMonster)			
 		elif playerAction == "f":
 			#try to escape
-			print "You try to get away from the monster..."
+			print "You try to get away from the %s..." % (theMonster)
 			time.sleep(1)
 			escape = random.randint(1,5)
 			if escape > 3:
@@ -182,10 +202,14 @@ def combat(level):
 			else:
 				print "You don't get away this time! Your opponent hits you for %s points of damage." % (int(monsterDamage/2))
 				player["health"] -= int(monsterDamage/2)
+		elif playerAction == "h" and "healing potion" in player["inventory"]:
+			print "You quaff a healing potion! You health has been restored."
+			player["health"] = player["maxHealth"]
+			player["inventory"].remove("healing potion")
 		else:
 			"I don't understand that command."
 		
-	
+# lets the player perform a standard action	
 def getAction():
 	print "\nAvailable actions:"
 	actionString = ""
@@ -217,7 +241,7 @@ def getAction():
 			sumNum = random.randrange(1,4)
 			if sumNum == 1:
 				print "\nYou find gold!"
-				gold = random.randrange(6,66)
+				gold = random.randrange(5,26)
 				print str(gold) + " added to your holdings..."
 				player["gold"] += gold
 				if gold > 12:
@@ -225,9 +249,17 @@ def getAction():
 			elif sumNum == 2:
 				print "Oh no! Monsters! A fight ensues..."
 				time.sleep(1)
-				combat(player["level"])
+				theLevel = player["level"]
+				# This makes fighting in dungeons way dangerous, while badlands, mountains and tundra is slightly tougher.
+				if gameMap[player["locationID"]]["type"] == "Dungeon":
+					theLevel += 2
+				elif gameMap[player["locationID"]]["type"] == "Badlands" or gameMap[player["locationID"]]["type"] == "Mountain" or gameMap[player["locationID"]]["type"] == "Tundra":
+					theLevel += 1
+				# start the fight!
+				combat(theLevel)
 			else:
 				print "You look around, but find nothing of interest..."
+				awardXP(player["level"])
 			
 			gameMap[player["locationID"]]["explored"] = True
 		else:
