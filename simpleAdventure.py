@@ -136,9 +136,9 @@ def monsterAttack(monsterDamage):
 	
 def combat(level):
 	fighting = True
-	monsterHP = int(random.randint(3,6) + (level*1.3)
+	monsterHP = random.randint(3,6) + level
 	monsterDamage = random.randint(1,3) + level
-	theXPReward = int((monsterHP + monsterDamage) * (level*2.5))
+	theXPReward = int((monsterHP + monsterDamage) * (level*1.5))
 	
 	if monsterHP > 5:
 		description = "a tough looking"
@@ -155,7 +155,7 @@ def combat(level):
 		playerAction = raw_input("Pick an action: ").lower()
 		if playerAction == "a":
 			#attack monster
-			toHit = random.randint(1,10)
+			toHit = random.randint(1,10) + level
 			time.sleep(0.5)
 			if toHit >= monsterHP:
 				theDamage = random.randint(2,5)
