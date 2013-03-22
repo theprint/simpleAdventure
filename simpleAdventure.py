@@ -5,6 +5,7 @@
 # Feel free to add to this code, or modify it in any way you see fit. Thanks, Rasmus - twitter.com/theprint / rasmusrasmussen.com
 import random
 import math
+import time
 
 # This is the player data
 player = {
@@ -121,6 +122,69 @@ def awardXP(amount):
 def healPC():
 	print "You have healed %s hit points." % (player["maxHealth"]-player["health"])
 	player["health"] = player["maxHealth"]
+
+def monsterAttack(monsterDamage):
+		print "The monster hits back at you..."
+		time.sleep(0.5)
+		monsterToHit = random.randint(1,10)
+		if monsterToHit > 6:
+			print "It hits you for %s points of damage." % (monsterDamage)
+			player["health"] -= monsterDamage
+		else:
+			print "The blow misses you."
+		time.sleep(0.5)
+	
+def combat(level):
+	fighting = True
+	monsterHP = int(random.randint(3,6) + (level*1.3)
+	monsterDamage = random.randint(1,3) + level
+	theXPReward = int((monsterHP + monsterDamage) * (level*2.5))
+	
+	if monsterHP > 5:
+		description = "a tough looking"
+	elif monsterDamage >= 3:
+		description = "a strong looking"
+	elif monsterHP <= 3:
+		description = "a weak looking"
+	else:
+		description = "an angry looking"
+	print "\nBefore you stands " + description + " monster."
+	while fighting == True:
+		print "a = attack"
+		print "f = flee"
+		playerAction = raw_input("Pick an action: ").lower()
+		if playerAction == "a":
+			#attack monster
+			toHit = random.randint(1,10)
+			time.sleep(0.5)
+			if toHit >= monsterHP:
+				theDamage = random.randint(2,5)
+				monsterHP -= theDamage
+				print "\nYou hit the monster for %s hit points." % (theDamage)
+				time.sleep(0.5)
+				if monsterHP <= 0:
+					print "Your opponent falls lifeless to the ground."
+					awardXP(theXPReward)
+					fighting = False
+				else:
+					monsterAttack(monsterDamage)
+			else:
+				print "Your blow misses its target."
+				monsterAttack(monsterDamage)			
+		elif playerAction == "f":
+			#try to escape
+			print "You try to get away from the monster..."
+			time.sleep(1)
+			escape = random.randint(1,5)
+			if escape > 3:
+				print "You escape and live to fight another day."
+				fighting = False
+			else:
+				print "You don't get away this time! Your opponent hits you for %s points of damage." % (int(monsterDamage/2))
+				player["health"] -= int(monsterDamage/2)
+		else:
+			"I don't understand that command."
+		
 	
 def getAction():
 	print "\nAvailable actions:"
@@ -160,11 +224,13 @@ def getAction():
 					awardXP(int(math.floor(gold/12)))
 			elif sumNum == 2:
 				print "Oh no! Monsters! A fight ensues..."
-				damage = random.randrange(1,5)
-				print "You take " + str(damage) + " points of damage."
-				player["health"] -= damage
-				if player["health"] > 0:
-					awardXP(damage*5)
+				time.sleep(1)
+				combat(player["level"])
+				#damage = random.randrange(1,5)
+				#print "You take " + str(damage) + " points of damage."
+				#player["health"] -= damage
+				#if player["health"] > 0:
+				#	awardXP(damage*5)
 			else:
 				print "You look around, but find nothing of interest..."
 			
