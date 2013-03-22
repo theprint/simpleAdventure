@@ -127,7 +127,7 @@ def monsterAttack(monsterDamage):
 		print "The monster hits back at you..."
 		time.sleep(0.5)
 		monsterToHit = random.randint(1,10)
-		if monsterToHit > 6:
+		if monsterToHit >= 6:
 			print "It hits you for %s points of damage." % (monsterDamage)
 			player["health"] -= monsterDamage
 		else:
@@ -149,7 +149,7 @@ def combat(level):
 	else:
 		description = "an angry looking"
 	print "\nBefore you stands " + description + " monster."
-	while fighting == True:
+	while fighting == True and player["health"] > 0:
 		print "a = attack"
 		print "f = flee"
 		playerAction = raw_input("Pick an action: ").lower()
@@ -226,11 +226,6 @@ def getAction():
 				print "Oh no! Monsters! A fight ensues..."
 				time.sleep(1)
 				combat(player["level"])
-				#damage = random.randrange(1,5)
-				#print "You take " + str(damage) + " points of damage."
-				#player["health"] -= damage
-				#if player["health"] > 0:
-				#	awardXP(damage*5)
 			else:
 				print "You look around, but find nothing of interest..."
 			
